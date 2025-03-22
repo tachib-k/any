@@ -23,7 +23,8 @@ export default function ChatPage() {
 
       const data = await response.json();
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-    } catch (_err) {
+    } catch (err) {
+      console.error(err); // ← これで使用されてることになる！
       setMessages((prev) => [...prev, { role: "assistant", content: "エラーが発生しちゃったみたい！🙈" }]);
     } finally {
       setLoading(false); // ← 追加！
