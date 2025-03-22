@@ -3,7 +3,10 @@ import openai
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)  # CORSを許可
 
 # OpenAI APIキーを設定（独自モデルを作るまではGPT-4を使用）
 load_dotenv()  # .envファイルを読み込む
