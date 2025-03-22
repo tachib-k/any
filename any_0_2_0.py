@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # CORSを許可
+CORS(app, origins=[
+    "http://localhost:3000",  # 開発用
+    "https://any-pied.vercel.app",  # ← 本番用その1
+    "https://any-withanys-projects.vercel.app"  # ← 本番用その2（サブドメイン）
+])
 
 # OpenAI APIキーを設定（独自モデルを作るまではGPT-4を使用）
 load_dotenv()  # .envファイルを読み込む
