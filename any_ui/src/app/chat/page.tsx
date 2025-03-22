@@ -4,23 +4,30 @@ import { useState } from "react";
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false); // ← 追加！
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-    
+
     const userMessage = { role: "user", content: input };
-    setMessages([...messages, userMessage]);
-
+    setMessages((prev) => [...prev, userMessage]); // ← prevを使って安全に！
     setInput("");
+    setLoading(true); // ← 追加！
 
-    const response = await fetch("https://any-5tp4.onrender.com/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input }),
-    });
+    try {
+      const response = await fetch("https://any-5tp4.onrender.com/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input }),
+      });
 
-    const data = await response.json();
-    setMessages([...messages, userMessage, { role: "assistant", content: data.reply }]);
+      const data = await response.json();
+      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      setMessages((prev) => [...prev, { role: "assistant", content: "エラーが発生しちゃったみたい！🙈" }]);
+    } finally {
+      setLoading(false); // ← 追加！
+    }
   };
 
   return (
@@ -32,6 +39,9 @@ export default function ChatPage() {
             <strong>{msg.role === "user" ? "あなた" : "エニー"}:</strong> {msg.content}
           </p>
         ))}
+        {loading && (
+          <p className="text-center text-gray-500 italic mt-2">エニーが考え中だよ…🧠💭</p>
+        )}
       </div>
       <input
         type="text"
@@ -39,9 +49,14 @@ export default function ChatPage() {
         onChange={(e) => setInput(e.target.value)}
         placeholder="エニーに話しかけてみよう！"
         className="border p-2 w-full"
+        disabled={loading}
       />
-      <button onClick={sendMessage} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
-        送信
+      <button
+        onClick={sendMessage}
+        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        disabled={loading}
+      >
+        {loading ? "送信中..." : "送信"}
       </button>
     </div>
   );
